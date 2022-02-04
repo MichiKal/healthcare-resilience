@@ -12,6 +12,8 @@ The other necessary files are:
 * **gemliste_knz.xls**
 * **municipality_geolocations.csv**
 
+To run the scripts, you will need to create 3 folders: **data**, **results** and **figures**.
+
 ---
 ## Scripts order to run
 To succesfully arrive at the results you need to run the script in the following order:
