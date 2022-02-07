@@ -25,7 +25,7 @@ To succesfully arrive at the results you need to run the script in the following
 6. SIM_multiprocessing.py that runs SimulatePatientDynamics_Final.py which uses the functions in Dynamics_Final.py
 7. combine_batches_from_SIM.ipybn
 8. benefit_risk_score.ipybn
-9. analyze_results_dataframe_and_LPFC_limits.ipybn
+9. analyze_results_dataframe.ipybn
 10. final_plots_and_regression.ipybn
 
 
@@ -91,8 +91,8 @@ To further analyse the simulation results, we first combine the batches using "c
 
 Next, we can estimate physician's risk and benefit scores with "benefit_risk_score.ipybn" that creates a table containing risk and benefit values for every doctor, saved as "Risk_Benefit_table.csv" in the ```results``` folder.
 
-In "analyze_results_dataframe_and_LPFC_limits.ipybn" a dataframe with all simulation results (some evaluated to get the values of remaining free capacity, lost patients etc.) is created and saved as "DF_results_Final.csv". Additionally, the free capacity (FC) and lost patients (LP) results are further analysed and their state-level limits are measured and saved into another results file "FCLP_limits_[]_[].csv".
+In "analyze_results_dataframe.ipybn" a dataframe with all simulation results (some evaluated to get the values of remaining free capacity, lost patients etc.) is created and saved as "DF_results_Final.csv".
 
-Finally, in "final_plots_and_regression.ipybn" we create figures 2, 3 and 4 of the paper using the risk and benefit score as well as the FC and LP limits on a federal state level. Figures are saved into the ```figures``` directory. 
+Finally, in "final_plots_and_regression.ipybn" we create figures 2, 3 and 4 of the paper using the risk and benefit score as well as the FC and LP limits on a federal state level. Additionally, we use linear regression models to check the correlation between the LP and FC limits and the risk and benefit scores. Figures are saved into the ```figures``` directory. 
 
 
