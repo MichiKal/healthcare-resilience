@@ -92,10 +92,10 @@ Results are saved in the specified directory (default: `results/`). The simulati
 ## Analysing results
 To further analyse the simulation results, we first combine the batches using `combine_batches_from_SIM.ipybn` in the `results` folder.
 
-Next, we can estimate physician's risk and benefit scores with `benefit_risk_score.ipybn` that creates a table containing risk and benefit values for every doctor, saved as "Risk_Benefit_table.csv" in the ```results``` folder.
+Next, we can estimate physician's risk and benefit scores with `benefit_risk_score.ipybn` that creates a table containing risk and benefit values for every doctor, saved as `Risk_Benefit_table.csv` in the `results/` folder.
 
-In "analyze_results_dataframe.ipybn" a dataframe with all simulation results (some evaluated to get the values of remaining free capacity, lost patients etc.) is created and saved as "DF_results_Final.csv".
+In `analyze_results_dataframe.ipynb` a dataframe with all simulation results (some evaluated to get the values of remaining free capacity, lost patients etc.) is created and saved as `results/DF_results_Final.csv`.
 
-Finally, in "final_plots_and_regression.ipybn" we create figures 2, 3 and 4 of the paper using the risk and benefit score as well as the FC and LP limits on a federal state level. Additionally, we use linear regression models to check the correlation between the LP and FC limits and the risk and benefit scores. Figures are saved into the ```figures``` directory. 
+Finally, in `final_plots_and_regression.ipynb` we create figures 2, 3 and 4 of the paper using the risk and benefit score as well as the FC and LP limits on a federal state level. Additionally, we use linear regression models to check the correlation between the LP and FC limits and the risk and benefit scores. Figures are saved into the `figures` directory. 
 
 
