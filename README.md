@@ -13,4 +13,6 @@ In ```Code``` you will find the scripts and 3 folders for data, results and figu
 The ```Figures``` folder does not contain Figure 1 since it was created using screenshots of a visualisation webpage of an accompanying project.
 
 ## Requirements
-To run the script you will need Python and Jupyter Notebooks.
+To download and install the libraries necessary to run the code in this repository, run
+
+`pip install -r requirements.txt`
