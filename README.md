@@ -1,12 +1,12 @@
 # Stress-testing the resilience of the Austrian healthcare system using agent-based simulation
 
-We use an agent-based model to simulate shocks to the healthcare system by randomly removing doctors from the underlying network. The repository contains the codes used for [paper].
+We use an agent-based model to simulate shocks to the healthcare system by randomly removing doctors from the underlying network. The repository contains the codes used for the paper below.
 
 Reference:
 
-_Kaleta, M., Lasser, J., Dervic, E., Yang, L., Sorger, J., Thurner., S., Klimek, P. (2022). Stress-testing the resilience of the Austrian healthcare system using agent-based simulation. [DOI](adress)_
+_Kaleta, M., Lasser, J., Dervic, E., Yang, L., Sorger, J., Lo Sardo, R., Thurner, S., Klimek, P. (2022). Stress-testing the resilience of the Austrian healthcare system using agent-based simulation.(adress)_
 
-Note the simulation results data is available in the following repository: https://doi.org/10.17605/OSF.IO/H5E9A
+Note the simulation results data is available in the following repository: https://doi.org/10.17605/OSF.IO/H5E9A.
 
 ## Contents
 The repository contains two folders: ```Code``` contains necessary scripts to run the simulations and analyze and visualize the results, and ```Figures``` containing the Figures shown in the paper.
