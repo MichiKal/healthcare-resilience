@@ -9,10 +9,9 @@ _Kaleta, M., Lasser, J., Dervic, E., Yang, L., Sorger, J., Lo Sardo, R., Thurner
 Note the simulation results data is available in the following repository: https://doi.org/10.17605/OSF.IO/H5E9A.
 
 ## Contents
-The repository contains two folders: ```Code``` contains necessary scripts to run the simulations and analyze and visualize the results, and ```Figures``` containing the Figures shown in the paper.
-In ```Code``` you will find the scripts and 3 folders for data, results and figures necessary to run the code. An additional ```README``` in this folder gives detailed information about how to run the scripts to recreate the results of the paper. 
+The repository contains the ```Code``` folder that contains necessary scripts to run the simulations and analyze and visualize the results. Within this folder you will find the additional folders ```data```and ```figures``` containing sample data and the figures expected to be prodiced from sample data. An additional ```README``` in this folder gives detailed information about how to run the scripts to recreate the results of the paper. 
 
-The ```Figures``` folder does not contain Figure 1 since it was created using screenshots of a visualisation webpage of an accompanying project.
+The ```figures``` folder does not contain Figure 1 since it was created using screenshots of a visualisation webpage of an accompanying project.
 
 ## Requirements
 To download and install the libraries necessary to run the code in this repository, run
