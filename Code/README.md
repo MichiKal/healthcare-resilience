@@ -8,7 +8,7 @@ To run the code, some of the script requires 4 already existing data files out o
 
 * **adj_all_doctors.npz**: sparse adjacency matrix for N unique physicians with size N x N. Integer entries A_{ij} contain number of shared patients between doctors i and j within a 3 month time window. 
 
-Nevertheless, we provide a random sample dataset containing 200 physicians of different specializations. This sample data is further described in the Demo section. The other necessary files in the ```data``` are:
+Nevertheless, we provide a synthetic dataset containing 200 physicians of different specializations. This synthetic data is further described in the Demo section. The other necessary files in the ```data``` are:
 * **gemliste_knz.xls**
 * **municipality_geolocations.csv**
 
@@ -96,7 +96,7 @@ Finally, in "final_plots_and_regression.ipybn" we create figures 2, 3 and 4 of t
 
 ---
 ## Demo
-To test run the simulation and the analysis, we provide a sample dataset containing 200 randomized physician-municipality-patient-contact-info rows, as well as the adjacency matrix for this sample. Using this sample data will allow you to run the scripts described above and produce the following figures. The expected runtime for the simulation is ~15minutes. The script municipality_distance_matrix.ipybn might take a few additional minutes to run. The expected resulting figures are shown in the ```figures``` folder of this repository. 
+To test run the simulation and the analysis, we provide a synthetic dataset containing 200 physician-municipality-patient-contact-info rows, as well as an adjacency matrix for this sample. Using this data will allow you to run the scripts described above and produce the following figures. The expected runtime for the simulation is ~15minutes. The script municipality_distance_matrix.ipybn might take a few additional minutes to run. The expected resulting figures are shown in the ```figures``` folder of this repository. 
 ![Scatter plot](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/Final_Scatter.svg)
 ![Heatmap](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_heatmap.svg)
 ![Line plot](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_states_main_AM.svg)
