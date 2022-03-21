@@ -97,7 +97,7 @@ Finally, in "final_plots_and_regression.ipybn" we create figures 2, 3 and 4 of t
 ---
 ## Demo
 To test run the simulation and the analysis, we provide a sample dataset containing 200 randomized physician-municipality-patient-contact-info rows, as well as the adjacency matrix for this sample. Using this sample data will allow you to run the scripts described above and produce the following figures. The expected runtime for the simulation is ~15minutes. The script municipality_distance_matrix.ipybn might take a few additional minutes to run. The expected resulting figures are shown in the ```figures``` folder of this repository. 
-![Scatter plot]('r https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/Final_Scatter.svg')
-![Heatmap]('r https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_heatmap.svg')
-![Line plot]('r https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_states_main_AM.svg')
+![Scatter plot](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/Final_Scatter.svg)
+![Heatmap](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_heatmap.svg)
+![Line plot](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_states_main_AM.svg)
 
