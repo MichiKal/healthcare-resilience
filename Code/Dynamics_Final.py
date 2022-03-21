@@ -70,6 +70,7 @@ def DataSetup(doc_file, data_src, sep, keep_dis, max_distance, min_pats):
     # select also correct docs in the docs-distance matrix
     dist_docs = dist_docs[np.ix_(doc_IDs, doc_IDs)]
     dist_docs = np.asarray(dist_docs)
+    
 
     
 

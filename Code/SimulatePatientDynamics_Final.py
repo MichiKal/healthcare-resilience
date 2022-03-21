@@ -131,7 +131,6 @@ doctors = list(['KI', 'PSY', 'ORTR', 'URO', 'HNO', 'CH', 'NEU', 'RAD', 'DER', 'G
 
 
 
-
 # pick patient type, capacity type and timeframe
 ptype = 'total'
 ctype = 'hour-based'
