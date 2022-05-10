@@ -28,17 +28,20 @@ def run_command_line(param):
     max_distance = 100
     max_distance_trials = 10
     min_patients = 2
+    covid_shock =True
+    ### in case you want a covid-shock, define shock size
+    shock_size = 10
     
     # add batch number at end of filename
     batch = 'batch_{}'.format(param)
     
     # runs simulation from terminal
-    os.system("python SimulatePatientDynamics_Final.py -iter {} -shocks {} -remove {} -ms {} -alpha {} -th {} -keep_dis {} -max_dist {} -max_dist_trials {} -min_pats {} --simulation_information {}".format(iterations, shocks, remove, max_steps, alpha, threshold, keep_disconnected, max_distance, max_distance_trials, min_patients, batch))
+    os.system("python SimulatePatientDynamics_Final.py -iter {} -shocks {} -remove {} -ms {} -alpha {} -th {} -keep_dis {} -max_dist {} -max_dist_trials {} -min_pats {} -covid_shock {} -shock_size {} --simulation_information {}".format(iterations, shocks, remove, max_steps, alpha, threshold, keep_disconnected, max_distance, max_distance_trials, min_patients, covid_shock, shock_size, batch))
     
     
 
 ### how many iterations in total? total = iterations x n [batches]
-n = 10
+n = 1  # for main sim results set n=10
 if __name__ == '__main__':
     ### pick number of threads that should be used
     threads_to_use = psutil.cpu_count(logical=True) - 2
