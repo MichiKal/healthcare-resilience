@@ -109,3 +109,5 @@ To test run the simulation and the analysis, we provide a synthetic dataset cont
 ![Heatmap](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_heatmap.svg)
 ![Line plot](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_states_main_AM.svg)
 
+And in case of the covid shock of size 15%, the run time is ~5 minutes for the SIM_multiprocessing.ipybn and you might additionally get the following figure:
+![Covid shock](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/covid_shock_grays_size15.svg)
