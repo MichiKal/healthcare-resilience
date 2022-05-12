@@ -26,6 +26,10 @@ To succesfully arrive at the results you need to run the script in the following
 9. analyze_results_dataframe_and_LPFC_limits.ipybn
 10. final_plots_and_regression.ipybn
 
+If you ran a larger shock ("covid-shock" event), you will additionally need to run the following script to obtain Fig. 5 of the paper and to create the table necessary to plot Fig. 6.
+
+11. covid_shock.ipynb
+
 
 ---
 ## Data preparation
