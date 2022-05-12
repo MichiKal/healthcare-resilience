@@ -277,10 +277,6 @@ for doc in doctors:
                                    min_pats, siminfo, simadd)), index=False)
     elif covid_shock == True:
         np.savetxt(join(results_dst,'searching_pats_{}_iter{}_shocksize{}.csv'.format(doc,iterations,shock_size)),searching_pats,delimiter=',')
-        results = results.reset_index(drop=True)
-        results.to_csv(join(results_dst, 'patient_dynamics_iter{}_shocks{}_remove{}_alpha{}_maxs{}_th{}_kd{}_maxdist{}_maxdisttrials{}_minpats{}_{}_{}_covidshock.csv'\
-                           .format(iterations, shocks, N_remove, alpha, max_steps,
-                                   threshold, keep_dis, max_distance, max_dist_trials,
-                                   min_pats, siminfo, simadd)), index=False)
+
         
         
