@@ -90,6 +90,14 @@ parser.add_argument('-min_pats','--min_pats',type=int,\
                 'otherwise entries are set to zero (filter weakest connections).',
                 default=2)
     
+parser.add_argument('-covid_shock','--covid_shock',type=int,\
+                help='Test larger shock with simultaneous removals. Set 1 for True.',
+                default=0)
+    
+parser.add_argument('-shock_size','--shock_size',type=int,\
+                help='Set shock size as percentage of physicians that is removed simultaneously.',
+                default=10)
+    
 parser.add_argument('-save_locations','--save_locations',type=bool,\
                 help='Save starting patient location and location \n'+\
                 'after x% of doctor removals.',
@@ -120,24 +128,33 @@ min_pats = args.min_pats
 simadd = args.simulation_information
 max_dist_trials = args.max_distance_trials
 save_locs = args.save_locations
+covid_shock = args.covid_shock
+shock_size = args.shock_size
 
-
+#seed = 42
 # initialize random number generator
 rng = np.random.default_rng(seed)
 
 
 ### list of all doctors to simulate over 
-doctors = list(['KI', 'PSY', 'ORTR', 'URO', 'HNO', 'CH', 'NEU', 'RAD', 'DER', 'GGH', 'AU', 'IM','AM'])
+doctors = list([ 'KI', 'AM', 'PSY', 'ORTR', 'URO', 'HNO', 'CH', 'NEU', 'RAD', 'DER', 'GGH', 'AU', 'IM'])
 
 
 
-# pick patient type, capacity type and timeframe
+### pick patient type, capacity type and timeframe
 ptype = 'total'
 ctype = 'hour-based'
 tf = 'quarterly'
 network = 'Österreich'
 
+if covid_shock == 1:
+    covid_shock = True
+elif covid_shock == 0:
+    covid_shock = False
 
+### lower num of iterations for covid shock
+if covid_shock==True:
+    iterations = 10
 
 ### loop over all medical specialties 
 for doc in doctors:
@@ -160,6 +177,9 @@ for doc in doctors:
     # load distance matrix between all docs that will never be changed
     origin_distances = sparse.load_npz(join(data_src, 'DistanceMatrixDocs.npz'))
     origin_distances = origin_distances.todense()
+    
+    ### initialize for checking covid shock
+    searching_pats = []
     
     # number of times the simulation will be run to create statistics
     for i in range(0, iterations):
@@ -191,8 +211,13 @@ for doc in doctors:
         
         for shock in range(0, shocks):
             if len(docs)<=1:
-                print(lost_summed + docs[0].NumOfPatients)
+                print('# of displaced patients: ',lost_summed + docs[0].NumOfPatients)
                 break
+            
+            ### built-in covid-shock - remove 10% of docs simultaneously
+            if covid_shock == True:
+                N_remove = int(np.ceil(len(adj)*(0.01*shock_size)))
+                print('# physicians being removed: ',N_remove)
             
             rem_indices = dyn.pick_doctors_to_remove(docs, N_remove, rng)
             
@@ -200,9 +225,9 @@ for doc in doctors:
                 break
             
             ### perform patient displacements and doctor removal 
-            docs, adj, avg_displacement, lost, distance_mean, dist_docs, patmat, OID, incorrect_summed = \
+            docs, adj, avg_displacement, lost, distance_mean, dist_docs, patmat, incorrect_summed, CS = \
                 dyn.equilibrate(docs,adj,dist_docs,rem_indices,alpha,max_steps,rng,shock,patmat,\
-                                totalNumOfPats,lost_summed,origin_distances,max_distance,max_dist_trials)
+                                totalNumOfPats,lost_summed,origin_distances,max_distance,max_dist_trials,covid_shock)
                         
             lost_summed += lost  ### update number of lost patients in country
                         
@@ -231,16 +256,31 @@ for doc in doctors:
                        .format(iterations, shocks, N_remove, alpha, max_steps,
                                threshold, keep_dis, max_distance, max_dist_trials,
                                min_pats, doc, i)), patmat,delimiter = ',')
+                    
+            if covid_shock == True:
+                if len(CS) < max_steps:
+                    CS = CS + list((np.zeros(max_steps-len(CS)).astype(int)))
+                searching_pats.append(CS)
+                print(CS)
+                break
             
 
         print(doc, 'removed_docs:', shock, 'iter:', i, 'free_cap_country',
               free_capacity_country,'disconnected_cap:', disc_capacity)
     
-    ### save results for every medical specialty
-    results = results.reset_index(drop=True)
-    results.to_csv(join(results_dst, 'patient_dynamics_iter{}_shocks{}_remove{}_alpha{}_maxs{}_th{}_kd{}_maxdist{}_maxdisttrials{}_minpats{}_{}_{}.csv'\
-                       .format(iterations, shocks, N_remove, alpha, max_steps,
-                               threshold, keep_dis, max_distance, max_dist_trials,
-                               min_pats, siminfo, simadd)), index=False)
+    if covid_shock == False:
+        ### save results for every medical specialty
+        results = results.reset_index(drop=True)
+        results.to_csv(join(results_dst, 'patient_dynamics_iter{}_shocks{}_remove{}_alpha{}_maxs{}_th{}_kd{}_maxdist{}_maxdisttrials{}_minpats{}_{}_{}.csv'\
+                           .format(iterations, shocks, N_remove, alpha, max_steps,
+                                   threshold, keep_dis, max_distance, max_dist_trials,
+                                   min_pats, siminfo, simadd)), index=False)
+    elif covid_shock == True:
+        np.savetxt(join(results_dst,'searching_pats_{}_iter{}_shocksize{}.csv'.format(doc,iterations,shock_size)),searching_pats,delimiter=',')
+        results = results.reset_index(drop=True)
+        results.to_csv(join(results_dst, 'patient_dynamics_iter{}_shocks{}_remove{}_alpha{}_maxs{}_th{}_kd{}_maxdist{}_maxdisttrials{}_minpats{}_{}_{}_covidshock.csv'\
+                           .format(iterations, shocks, N_remove, alpha, max_steps,
+                                   threshold, keep_dis, max_distance, max_dist_trials,
+                                   min_pats, siminfo, simadd)), index=False)
         
         

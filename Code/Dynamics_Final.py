@@ -179,10 +179,17 @@ def DataSetup(doc_file, data_src, sep, keep_dis, max_distance, min_pats):
     return docs, adj, docs_removed, dist_docs, patmat, patloc_state
 
 
+def intersection(lst1, lst2):
+    '''
+    Function to check for equal values in 2 arrays.
+    '''
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+
 
 
 def equilibrate(docs,adj,dist_docs,rem_indices,alpha,maxSteps,rng,shock,patmat,totalNumOfPats,\
-                lost_summed,origin_distances,max_distance,max_dist_trials):
+                lost_summed,origin_distances,max_distance,max_dist_trials,covid_shock):
     
     '''
     Function for the doctor removal step and the patient re-location.
@@ -203,15 +210,17 @@ def equilibrate(docs,adj,dist_docs,rem_indices,alpha,maxSteps,rng,shock,patmat,t
     displaced_pats['locations'] = np.hstack([np.asarray([i] * int(NPats)) for \
             i, NPats in zip(rem_indices, N_patients[rem_indices])]).astype(int)
         
-        
+       
     ### add info on starting doctor Gemeinde ID to check if they've moved too far 
-    displaced_pats['start_docID'] = patmat[patmat[:,1]==int(Origin_ID[rem_indices]),0]
-        
-        
+    #displaced_pats['start_docID'] = patmat[patmat[:,1]==int(Origin_ID[rem_indices]),0] # version for 1doc removal
+    displaced_pats['start_docID'] = patmat[np.isin(patmat[:,1],Origin_ID[rem_indices]),0]  
+     
+
     ### write info on original ID of removed doc indisplaced_pats (would need to change
     ### that if more docs are removed)
-    displaced_pats['origin_ID'] = np.asarray([int(Origin_ID[rem_indices])] * \
-        len(displaced_pats['locations']))
+    #displaced_pats['origin_ID'] = np.asarray([int(Origin_ID[rem_indices])] * len(displaced_pats['locations'])) # version for 1doc removal
+    displaced_pats['origin_ID'] = np.hstack([np.asarray([i] * int(Oid)) for \
+            i, Oid in zip(Origin_ID[rem_indices],N_patients[rem_indices])]).astype(int) 
         
         
 
@@ -226,6 +235,14 @@ def equilibrate(docs,adj,dist_docs,rem_indices,alpha,maxSteps,rng,shock,patmat,t
     displaced_pats['distance'] = np.asarray([0] * \
         len(displaced_pats['locations']))
 
+
+    ### if more than one doc removed, need to cut all their connections between each other
+    if covid_shock == True:
+        for i in rem_indices:
+            for j in rem_indices:
+                adj[i,j] = 0
+                adj[j,i] = 0
+        
     adj[:, rem_indices] = 0
     t = 0
     lost = 0                # num of lost patients per doctor removal step
@@ -237,11 +254,15 @@ def equilibrate(docs,adj,dist_docs,rem_indices,alpha,maxSteps,rng,shock,patmat,t
     
     ### add variable for loop in step()
     displaced_pats['correct'] = np.asarray([0] * len(displaced_pats['locations']))
+    
+    ### initiate for covid shock
+    still_searching = []
 
     while True:
 
-        displaced_pats, lost, incorrect_summed = step(displaced_pats, adj, docs, lost, rng, 
-            alpha, maxSteps, dist_docs, origin_distances,max_distance,max_dist_trials,incorrect_summed)
+        displaced_pats, lost, incorrect_summed, still_searching = step(displaced_pats, adj, docs, lost, rng, 
+            alpha, maxSteps, dist_docs, origin_distances,max_distance,max_dist_trials,incorrect_summed,
+            covid_shock,rem_indices,still_searching)
  
         
         # if there are no more patients looking for a doctor: break 
@@ -268,9 +289,12 @@ def equilibrate(docs,adj,dist_docs,rem_indices,alpha,maxSteps,rng,shock,patmat,t
 
     ### update patient location: for all patients who where at rem_doc before get an update
     ### if no patients displaced, skip this
+
     if len(displaced_pats['new_ID'])>0:
         updatedlocs = np.asarray(displaced_pats['new_ID'])
-        patmat[patmat[:,1]==np.unique(displaced_pats['origin_ID'])[0],1] = updatedlocs
+        #patmat[patmat[:,1]==np.unique(displaced_pats['origin_ID'])[0],1] = updatedlocs # for one doc removal
+        for udoc in np.unique(displaced_pats['origin_ID']):
+            patmat[patmat[:,1]==udoc,1] = updatedlocs[np.asarray(displaced_pats['origin_ID'])==udoc]
     
 
     # calculate average distance using DistanceMatrix over all patients that
@@ -290,10 +314,12 @@ def equilibrate(docs,adj,dist_docs,rem_indices,alpha,maxSteps,rng,shock,patmat,t
     adj = adj[np.ix_(not_failed, not_failed)]
     dist_docs = dist_docs[np.ix_(not_failed, not_failed)]
 
-    for i in rem_indices:
+    #for i in rem_indices:
+    for i in -np.sort(-rem_indices):
         del docs[i]
                     
-    return docs, adj, displaced_pats['displacements'].mean(), lost, avg_distance_mean, dist_docs, patmat, int(Origin_ID[rem_indices]),incorrect_summed
+    return docs, adj, displaced_pats['displacements'].mean(), lost, avg_distance_mean, dist_docs, patmat,\
+           incorrect_summed, still_searching
 
 
 
@@ -302,7 +328,7 @@ def pick_doctors_to_remove(doctors, N, rng):
     '''
     Pick N random doctors to be removed. 
     '''
-    rem_index = rng.choice(range(len(doctors)), N)
+    rem_index = rng.choice(range(len(doctors)), N, replace=False)
     
     return rem_index
 
@@ -326,13 +352,17 @@ def find_targets(prob_matrix, rng):
 
 
 
-def step(displaced_pats, adj, docs, lost, rng, alpha, maxSteps, dist_docs, origin_distances,max_distance,max_dist_trials,incorrect_summed):
+def step(displaced_pats, adj, docs, lost, rng, alpha, maxSteps, dist_docs, origin_distances,\
+         max_distance,max_dist_trials,incorrect_summed,covid_shock,rem_indices,still_searching):
     '''
     Function to displace patients and check whether they have been accepted
     or not. Also updates the number of patients at doctors who accept new
     patients. After MAX_STEPS, patients stop looking for a new doctor and
     become lost.
     '''
+    
+    ### initiate empty list for counting patients who are still searching 
+    
     
     # there are doctors with 0 patients but nonzero capacity in the data. To
     # keep these doctors, we have to check whether there are any displaced
@@ -370,31 +400,56 @@ def step(displaced_pats, adj, docs, lost, rng, alpha, maxSteps, dist_docs, origi
             # probability given by the number of shared patients of each possible 
             # target doctor with the failed doctor
             targets = find_targets(prob_weights, rng)
+     
             
      
             # Choose whether to teleport
             teleport = rng.random(targets.shape) < alpha 
             targets[teleport] = rng.choice(range(len(docs)))
+            
+            ### for removed docs set avaiability to 0
+            if covid_shock==True:
+                for rd in rem_indices:
+                    docs[rd].availability = 0
+                    docs[rd].NumOfPatients = docs[rd].capacity 
     
             
             ### Update locations of patients
             displaced_pats['locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)] \
                         = targets.squeeze()
                         
-            ### Update distance for now. If patients dont stay, reset to zero
-            rem_doc_location = np.unique(displaced_pats['origin_locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)])
-            new_dist = np.asarray([dist_docs[rem_doc_location,j].item() for j in displaced_pats['locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)]])
-            displaced_pats['distance'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)] = new_dist.squeeze()
+            if covid_shock==False:
+                ### Update distance for now. If patients dont stay, reset to zero
+                rem_doc_location = np.unique(displaced_pats['origin_locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)])
+                new_dist = np.asarray([dist_docs[rem_doc_location,j].item() for j in displaced_pats['locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)]])  # for one-doc removal
+                displaced_pats['distance'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)] = new_dist.squeeze()
                         
                         
-            ### get distance between new doctor and the starting location of patients
-            current_docID = np.asarray([docs[cur].originalID for cur in np.asarray(displaced_pats['locations'])]) 
-            start_end_dist = np.asarray([origin_distances[int(st),int(en)].item() for st,en in \
-                                         zip(np.asarray(displaced_pats['start_docID']),current_docID)])
-            
+                ### get distance between new doctor and the starting location of patients
+                current_docID = np.asarray([docs[cur].originalID for cur in np.asarray(displaced_pats['locations'])]) 
+                start_end_dist = np.asarray([origin_distances[int(st),int(en)].item() for st,en in \
+                                             zip(np.asarray(displaced_pats['start_docID']),current_docID)])
                 
-            ### those who are within distance limit, are relocated correctly
-            displaced_pats['correct'][(displaced_pats['searching']==True)&(start_end_dist<=max_distance)] = np.asarray([1] * len(displaced_pats['correct'][(displaced_pats['searching']==True)&(start_end_dist<=max_distance)]))
+                    
+                ### those who are within distance limit, are relocated correctly
+                displaced_pats['correct'][(displaced_pats['searching']==True)&(start_end_dist<=max_distance)] = np.asarray([1] * len(displaced_pats['correct'][(displaced_pats['searching']==True)&(start_end_dist<=max_distance)]))
+           
+            elif covid_shock == True:
+                ### Update distance for now. If patients dont stay, reset to zero
+                rem_doc_location = np.unique(displaced_pats['origin_locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)])
+                new_dist = np.asarray([dist_docs[i,j].item() for i,j in zip(displaced_pats['locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)],displaced_pats['origin_locations'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)])]) # memory-error
+                displaced_pats['distance'][(displaced_pats['searching']==True)&(displaced_pats['correct']==0)] = new_dist.squeeze()
+                        
+                        
+                ### get distance between new doctor and the starting location of patients
+                current_docID = np.asarray([docs[cur].originalID for cur in np.asarray(displaced_pats['locations'])]) 
+                start_end_dist = np.asarray([origin_distances[int(st),int(en)].item() for st,en in \
+                                             zip(np.asarray(displaced_pats['start_docID']),current_docID)])
+                
+                    
+                ### those who are within distance limit, are relocated correctly
+                displaced_pats['correct'][(displaced_pats['searching']==True)&(start_end_dist<=max_distance)] = np.asarray([1] * len(displaced_pats['correct'][(displaced_pats['searching']==True)&(start_end_dist<=max_distance)]))
+           
            
             ### if counter gets to high, break while loop. Patients can 
             ### now be relocated to doctors further than MAX_DIST
@@ -449,7 +504,7 @@ def step(displaced_pats, adj, docs, lost, rng, alpha, maxSteps, dist_docs, origi
             # Skip doctors with no incoming patients and doctors that have
             # absorbed all patients and doctors that are already completely filled
             elif doc.incoming and doc.availability != 0:
-                incoming = np.asarray(displaced_pats['locations'][displaced_pats['searching']] == i)  
+                #incoming = np.asarray(displaced_pats['locations'][displaced_pats['searching']] == i)  
 
                 # fill doc up to capacity
                 doc.NumOfPatients += doc.availability
@@ -461,11 +516,15 @@ def step(displaced_pats, adj, docs, lost, rng, alpha, maxSteps, dist_docs, origi
                 temp_locations_doc = temp_locations==i
                 temp_searching_and_atdoc = np.logical_and(temp_searching,temp_locations_doc)
                 temptrue = temp_searching_and_atdoc.nonzero()[0]
-                kept2 = rng.choice(temptrue,size=doc.availability, replace=False)
-                temp_searching[kept2] = False
+                kept = rng.choice(temptrue,size=doc.availability, replace=False)
+                temp_searching[kept] = False
                 displaced_pats['searching'] = temp_searching
 
             else:
                 pass
+            
+        ### for built in covid shock, track searching patients
+        if covid_shock == True:
+            still_searching.append(len(displaced_pats['searching'][displaced_pats['searching']==True]))
 
-    return displaced_pats, lost, incorrect_summed
+    return displaced_pats, lost, incorrect_summed, still_searching
