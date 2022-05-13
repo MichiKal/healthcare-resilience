@@ -32,8 +32,10 @@ def run_command_line(param):
     ### in case you want a covid-shock, define shock size
     shock_size = 10
     
+    print('Covid shock = ',covid_shock)
     # add batch number at end of filename
     batch = 'batch_{}'.format(param)
+    
     
     # runs simulation from terminal
     os.system("python SimulatePatientDynamics_Final.py -iter {} -shocks {} -remove {} -ms {} -alpha {} -th {} -keep_dis {} -max_dist {} -max_dist_trials {} -min_pats {} -covid_shock {} -shock_size {} --simulation_information {}".format(iterations, shocks, remove, max_steps, alpha, threshold, keep_disconnected, max_distance, max_distance_trials, min_patients, covid_shock, shock_size, batch))

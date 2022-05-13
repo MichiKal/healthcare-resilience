@@ -26,6 +26,10 @@ To succesfully arrive at the results you need to run the script in the following
 9. analyze_results_dataframe_and_LPFC_limits.ipybn
 10. final_plots_and_regression.ipybn
 
+If you ran a larger shock ("covid-shock" event), you will additionally need to run the following script to obtain Fig. 5 of the paper and to create the table necessary to plot Fig. 6.
+
+11. covid_shock.ipynb
+
 
 ---
 ## Data preparation
@@ -75,6 +79,8 @@ The following list shows the possible options/parameters of the simulation:
   * ```-verb VERBOSITY```: Verbosity level of the simulation (0, 1, 2). Default: 0, no debugging output.
   * ```-simadd SIMULATION_INFORMATION```: String containing simulation information (parallelisation) that will be appended to the results file. Default: ''.
   * ```-seed SEED```: Sets the random seed of the simulation. If the seed is set, runs with the same seed are repeatable. Default: None, i.e. every unique simulation is initialized with a new random seed.
+  * ```-covid_shock COVID_SHOCK```: Set if you want to run a larger size shock than single removals. Default 0, i.e. no large scale shock. Set to 1 if you want a covid-type shock event.
+  * ```-shock_size SHOCK_SIZE```: Define the size of the covid shock as the percentage (%) of physicians to remove per specialty within one simulation step. Default 10. If covid_shock=0, then this variable has no effect.
 
 You can run the multiprocessing simulation over the command line using the following command:
 `python SIM_multiprocessing.py`
@@ -91,7 +97,9 @@ Next, we can estimate physician's risk and benefit scores with "benefit_risk_sco
 
 In "analyze_results_dataframe_and_LPFC_limits.ipybn" a dataframe with all simulation results (some evaluated to get the values of remaining free capacity, lost patients etc.) is created and saved as "DF_results_Final.csv". Additionally, the free capacity (FC) and lost patients (LP) results are further analysed and their state-level limits are measured and saved into another results file "FCLP_limits_[]_[].csv".
 
-Finally, in "final_plots_and_regression.ipybn" we create figures 2, 3 and 4 of the paper using the risk and benefit score as well as the FC and LP limits on a federal state level. Figures are saved into the ```figures``` directory. 
+Finally, in "final_plots_and_regression.ipybn" we create figures 2 and 3 and a SI figure of the paper using the risk and benefit score as well as the FC and LP limits on a federal state level. Figures are saved into the ```figures``` directory. 
+
+In case of a covid shock event, you can analyse the results with "covid_shock.ipybn", which will produce a Figure containing subplots of every specialty as well as a summary table with averaged values.
 
 
 ---
@@ -101,3 +109,5 @@ To test run the simulation and the analysis, we provide a synthetic dataset cont
 ![Heatmap](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_heatmap.svg)
 ![Line plot](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/LPFC_states_main_AM.svg)
 
+And in case of the covid shock of size 15%, the run time is ~5 minutes for the SIM_multiprocessing.ipybn and you might additionally get the following figure:
+![Covid shock](https://github.com/MichiKal/healthcare-resilience/blob/main/Code/figures/covid_shock_grays_size15.svg)

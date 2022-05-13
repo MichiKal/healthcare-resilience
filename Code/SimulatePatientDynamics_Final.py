@@ -137,6 +137,7 @@ rng = np.random.default_rng(seed)
 
 
 ### list of all doctors to simulate over 
+
 doctors = list(['AM', 'KI', 'PSY', 'ORTR', 'URO', 'HNO', 'CH', 'NEU', 'RAD', 'DER', 'GGH', 'AU', 'IM'])
 
 
@@ -147,6 +148,10 @@ ctype = 'hour-based'
 tf = 'quarterly'
 network = 'Österreich'
 
+if covid_shock == 1:
+    covid_shock = True
+elif covid_shock == 0:
+    covid_shock = False
 
 ### lower num of iterations for covid shock
 if covid_shock==True:
@@ -207,7 +212,7 @@ for doc in doctors:
         
         for shock in range(0, shocks):
             if len(docs)<=1:
-                print(lost_summed + docs[0].NumOfPatients)
+                print('# of displaced patients: ',lost_summed + docs[0].NumOfPatients)
                 break
             
             ### built-in covid-shock - remove 10% of docs simultaneously
